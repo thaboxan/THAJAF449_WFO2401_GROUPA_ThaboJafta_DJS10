@@ -3,25 +3,35 @@ import "./App.css";
 
 export default function App() {
   const [data, setData] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/posts")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Data Fetching Failed");
+        }
+        return response.json();
+      })
       .then((data) => setData(data))
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => setError(error.message));
   }, []);
 
   return (
     <div>
-      <h2>Lists</h2>
-      <ol>
-        {data.map((post) => (
-          <li className="list" key={post.id}>
-            <h3>{post.title}</h3>
-            <p>{post.body}</p>
-          </li>
-        ))}
-      </ol>
+      <h2>Posts</h2>
+      {error ? (
+        <p>Error: {error}</p>
+      ) : (
+        <ol>
+          {data.map((post) => (
+            <li key={post.id}>
+              <h3>{post.title}</h3>
+              <p>{post.body}</p>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
